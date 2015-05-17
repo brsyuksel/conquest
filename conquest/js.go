@@ -139,12 +139,12 @@ func conquestInitials(conquest *Conquest, method string, call *otto.FunctionCall
 	for _, k := range argObj.Keys() {
 		val, err := argObj.Get(k)
 		if err != nil {
-			continue
+			panic(err)
 		}
 
 		valStr, err := val.ToString()
 		if err != nil {
-			continue
+			panic(err)
 		}
 
 		if _, exists := conquest.Initials[method]; !exists {
@@ -528,7 +528,7 @@ func (t JSTransaction) Body(call otto.FunctionCall) otto.Value {
 	for _, k := range argObj.Keys() {
 		val, err := argObj.Get(k)
 		if err != nil {
-			continue
+			panic(err)
 		}
 
 		if val.IsFunction() {
@@ -538,16 +538,16 @@ func (t JSTransaction) Body(call otto.FunctionCall) otto.Value {
 			jsf := toOttoValueOrPanic(t.jsconquest.vm, *fetch)
 			retfn, err := val.Call(val, jsf)
 			if err != nil {
-				continue
+				panic(err)
 			}
 			exp, err := retfn.Export()
 			if err != nil {
-				continue
+				panic(err)
 			}
 
 			notation, err := mapToFetchNotation(exp.(map[string]interface{}))
 			if err != nil {
-				continue
+				panic(err)
 			}
 			t.transaction.Body[k] = notation
 
@@ -555,10 +555,12 @@ func (t JSTransaction) Body(call otto.FunctionCall) otto.Value {
 		}
 
 		valStr, err := val.ToString()
-		if err == nil {
-			t.transaction.Body[k] = valStr
-			continue
+		if err != nil {
+			panic(err)
 		}
+
+		t.transaction.Body[k] = valStr
+
 	}
 
 	return toOttoValueOrPanic(t.jsconquest.vm, t)
@@ -578,7 +580,7 @@ func fetchFrom(kind uint8, call *otto.FunctionCall,
 	for _, v := range call.ArgumentList {
 		vstr, err := v.ToString()
 		if err != nil {
-			continue
+			panic(err)
 		}
 		args = append(args, vstr)
 	}
