@@ -6,8 +6,8 @@ func UnlessNilThenPanic(err error) {
 	}
 }
 
-func MapMerge(dst map[string]string,
-	src map[string]string, overwrite bool) map[string]string {
+func MapMerge(dst map[string]interface{},
+	src map[string]interface{}, overwrite bool) map[string]interface{} {
 	if src == nil {
 		return dst
 	}

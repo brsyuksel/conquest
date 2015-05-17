@@ -148,7 +148,7 @@ func conquestInitials(conquest *Conquest, method string, call *otto.FunctionCall
 		}
 
 		if _, exists := conquest.Initials[method]; !exists {
-			conquest.Initials[method] = map[string]string{}
+			conquest.Initials[method] = map[string]interface{}{}
 		}
 
 		conquest.Initials[method][k] = valStr
@@ -398,8 +398,8 @@ func (t JSTransaction) Do(call otto.FunctionCall) otto.Value {
 		conquest:      t.jsconquest.conquest,
 		Verb:          verb,
 		Path:          path,
-		Headers:       map[string]string{},
-		Cookies:       map[string]string{},
+		Headers:       map[string]interface{}{},
+		Cookies:       map[string]interface{}{},
 		ResConditions: map[string]interface{}{},
 		Body:          map[string]interface{}{},
 	}
@@ -455,10 +455,31 @@ func setAdditionals(kind string, call *otto.FunctionCall,
 	key, err := call.Argument(0).ToString()
 	utils.UnlessNilThenPanic(err)
 
-	val, err := call.Argument(1).ToString()
+	var addVal interface{}
+
+	val := call.Argument(1)
+	if val.IsFunction() {
+		fetcher := &JSFetch{
+			jsconquest: t.jsconquest,
+		}
+
+		jsfetcher := toOttoValueOrPanic(t.jsconquest.vm, *fetcher)
+		retv, err := val.Call(val, jsfetcher)
+		utils.UnlessNilThenPanic(err)
+
+		retn, err := retv.Export()
+		utils.UnlessNilThenPanic(err)
+
+		addVal, err = mapToFetchNotation(retn.(map[string]interface{}))
+		utils.UnlessNilThenPanic(err)
+		goto ADD_TO_ADDITIONAL_MAP
+	}
+
+	addVal, err = val.ToString()
 	utils.UnlessNilThenPanic(err)
 
-	var hMap map[string]string
+ADD_TO_ADDITIONAL_MAP:
+	var hMap map[string]interface{}
 	switch kind {
 	case "Header":
 		hMap = t.transaction.Headers
@@ -466,7 +487,7 @@ func setAdditionals(kind string, call *otto.FunctionCall,
 		hMap = t.transaction.Cookies
 	}
 
-	hMap[key] = val
+	hMap[key] = addVal
 
 	return toOttoValueOrPanic(t.jsconquest.vm, *t)
 }
@@ -543,7 +564,7 @@ func (t JSTransaction) Body(call otto.FunctionCall) otto.Value {
 	return toOttoValueOrPanic(t.jsconquest.vm, t)
 }
 
-// fetch object which will be passed as argument user-defined argument at 
+// fetch object which will be passed as argument user-defined argument at
 // body, header, cookies functions.
 type JSFetch struct {
 	jsconquest *JSConquest

@@ -62,14 +62,20 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 
 	if len(t.Headers) > 0 {
 		for k, v := range t.Headers {
-			res.Header += k + ": " + v + "\r\n"
+			if _, ok := v.(string); !ok {
+				continue
+			}
+			res.Header += k + ": " + v.(string) + "\r\n"
 		}
 	}
 
 	if len(t.Cookies) > 0 {
 		res.Header += "Cookie: "
 		for k, v := range t.Cookies {
-			res.Header += k + "=" + v + "; "
+			if _, ok := v.(string); !ok {
+				continue
+			}
+			res.Header += k + "=" + v.(string) + "; "
 		}
 		res.Header += "\r\n"
 	}

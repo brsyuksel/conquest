@@ -31,7 +31,7 @@ type Conquest struct {
 	Proto, Host, PemFilePath  string
 	TlsInsecure, Sequential   bool
 	TotalUsers, TotalRequests int64
-	Initials                  map[string]map[string]string
+	Initials                  map[string]map[string]interface{}
 	Duration                  *time.Duration
 	Track                     *TransactionContext
 }
@@ -39,12 +39,12 @@ type Conquest struct {
 func NewConquest() *Conquest {
 	c := &Conquest{
 		Proto:         "HTTP/1.1",
-		Initials:      map[string]map[string]string{},
+		Initials:      map[string]map[string]interface{}{},
 		TotalUsers:    10,
 		TotalRequests: 100,
 	}
 
-	c.Initials["Headers"] = map[string]string{
+	c.Initials["Headers"] = map[string]interface{}{
 		"User-Agent":    "conquest " + __VERSION__,
 		"Connection":    "keep-alive",
 		"Cache-Control": "no-cache",
@@ -55,12 +55,10 @@ func NewConquest() *Conquest {
 }
 
 type Transaction struct {
-	conquest         *Conquest
-	ReqOptions       uint8
-	Verb, Path       string
-	Headers, Cookies map[string]string
-	Body             map[string]interface{}
-	ResConditions    map[string]interface{}
+	conquest                              *Conquest
+	ReqOptions                            uint8
+	Verb, Path                            string
+	Headers, Cookies, Body, ResConditions map[string]interface{}
 }
 
 type TransactionContext struct {

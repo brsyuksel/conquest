@@ -1,6 +1,9 @@
 conquest
   .Host("http://10.0.2.2:2297")
   .Requests(100)
+  .Headers({
+  	"X-Conquest": "v0.1.0"
+  })
   .Users(10, function(users){
     users
       .Every(function(user){
@@ -98,7 +101,7 @@ conquest
         */
         user
           .Do("GET", "/static")
-          .Header("If-None-Match", function(fetch){ return fetch.FromHeader("Etag"); })
+          .SetHeader("If-None-Match", function(fetch){ return fetch.FromHeader("Etag"); })
           .Response
             .StatusCode(304)
         ;
