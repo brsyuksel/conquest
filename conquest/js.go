@@ -543,10 +543,14 @@ func (t JSTransaction) Body(call otto.FunctionCall) otto.Value {
 	return toOttoValueOrPanic(t.jsconquest.vm, t)
 }
 
+// fetch object which will be passed as argument user-defined argument at 
+// body, header, cookies functions.
 type JSFetch struct {
 	jsconquest *JSConquest
 }
 
+// fetch.Fetch* methods
+// returns FetchNotation
 func fetchFrom(kind uint8, call *otto.FunctionCall,
 	f *JSFetch) otto.Value {
 	args := []string{}
@@ -566,17 +570,26 @@ func fetchFrom(kind uint8, call *otto.FunctionCall,
 	return toOttoValueOrPanic(f.jsconquest.vm, notation)
 }
 
+// fetch.FromHeader
+// Ex: fetch.FromHeader("X-HeaderName")
 func (f JSFetch) FromHeader(call otto.FunctionCall) otto.Value {
 	return fetchFrom(FETCH_HEADER, &call, &f)
 }
 
+// fetch.FromCookie
+// ex: fetch.FromCookie("cookie_name")
 func (f JSFetch) FromCookie(call otto.FunctionCall) otto.Value {
 	return fetchFrom(FETCH_COOKIE, &call, &f)
 }
 
+// fetch.FromDisk
+// ex: fetch.FromDisk("/path/to/files/", "mime-type")
 func (f JSFetch) FromDisk(call otto.FunctionCall) otto.Value {
 	return fetchFrom(FETCH_DISK, &call, &f)
 }
+
+// fetch.FromHtml
+// ex: fetch.FromHtml("GET", "/path", "#selector_id")
 func (f JSFetch) FromHtml(call otto.FunctionCall) otto.Value {
 	return fetchFrom(FETCH_HTML, &call, &f)
 }
