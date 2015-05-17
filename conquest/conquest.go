@@ -6,6 +6,10 @@ import (
 )
 
 const (
+	__VERSION__ string = "0.1.0"
+)
+
+const (
 	CLEAR_COOKIES uint8 = 1 << iota
 	CLEAR_HEADERS
 	REJECT_COOKIES
@@ -30,6 +34,24 @@ type Conquest struct {
 	Initials                  map[string]map[string]string
 	Duration                  *time.Duration
 	Track                     *TransactionContext
+}
+
+func NewConquest() *Conquest {
+	c := &Conquest{
+		Proto:         "HTTP/1.1",
+		Initials:      map[string]map[string]string{},
+		TotalUsers:    10,
+		TotalRequests: 100,
+	}
+
+	c.Initials["Headers"] = map[string]string{
+		"User-Agent":    "conquest " + __VERSION__,
+		"Connection":    "keep-alive",
+		"Cache-Control": "no-cache",
+		"Pragma":        "no-cache",
+	}
+
+	return c
 }
 
 type Transaction struct {

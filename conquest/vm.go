@@ -1,8 +1,8 @@
 package conquest
 
 import (
-	"github.com/robertkrimen/otto"
 	"errors"
+	"github.com/robertkrimen/otto"
 )
 
 func RunScript(file string) (conquest *Conquest, err error) {
@@ -19,14 +19,10 @@ func RunScript(file string) (conquest *Conquest, err error) {
 	vm := otto.New()
 
 	conjs := JSConquest{
-		vm: vm,
-		conquest: &Conquest{
-			Proto:         "HTTP/1.1",
-			Initials:      map[string]map[string]string{},
-			TotalUsers:    10,
-			TotalRequests: 100,
-		},
+		vm:       vm,
+		conquest: NewConquest(),
 	}
+
 	if err = vm.Set("conquest", conjs); err != nil {
 		return
 	}
