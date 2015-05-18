@@ -30,7 +30,7 @@ const (
 type Conquest struct {
 	Proto, Host, PemFilePath  string
 	TlsInsecure, Sequential   bool
-	TotalUsers, TotalRequests int64
+	TotalUsers, TotalRequests uint64
 	Initials                  map[string]map[string]interface{}
 	Duration                  *time.Duration
 	Track                     *TransactionContext

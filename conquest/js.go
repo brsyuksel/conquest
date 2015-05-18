@@ -117,7 +117,11 @@ func (c JSConquest) Requests(call otto.FunctionCall) otto.Value {
 	reqs, err := call.Argument(0).ToInteger()
 	utils.UnlessNilThenPanic(err)
 
-	c.conquest.TotalRequests = reqs
+	if reqs <= 0 {
+		panic(errors.New("Total requests can not be equal zero or lesser."))
+	}
+
+	c.conquest.TotalRequests = uint64(reqs)
 
 	return toOttoValueOrPanic(c.vm, c)
 }
@@ -184,7 +188,11 @@ func (c JSConquest) Users(call otto.FunctionCall) otto.Value {
 	uc, err := call.Argument(0).ToInteger()
 	utils.UnlessNilThenPanic(err)
 
-	c.conquest.TotalUsers = uc
+	if uc <= 0 {
+		panic(errors.New("Total users can not be equal zero or lesser."))
+	}
+
+	c.conquest.TotalUsers = uint64(uc)
 
 	fn := call.Argument(1)
 	if !fn.IsFunction() {
