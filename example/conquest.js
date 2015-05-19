@@ -1,6 +1,5 @@
 conquest
   .Host("http://10.0.2.2:2297")
-  .Requests(100)
   .Headers({
   	"X-Conquest": "v0.1.0"
   })
