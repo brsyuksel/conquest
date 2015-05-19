@@ -9,16 +9,17 @@ import (
 )
 
 var (
-	users, requests     uint64
+	users               uint64
 	timeout, configfile string
+	sequential          bool
 )
 
 func init() {
 	flag.Uint64Var(&users, "u", 10, "concurrent users.")
-	flag.Uint64Var(&requests, "r", 100, "total requests will be achieved by users.")
 	flag.StringVar(&timeout, "t", "TIMEm",
 		"time for requests. Use s, m, h modifiers for m")
 	flag.StringVar(&configfile, "c", "conquest.js", "conquest js file path")
+	flag.BoolVar(&sequential, "s", false, "do transactions in sequential mode")
 }
 
 func main() {
@@ -40,14 +41,14 @@ func main() {
 		switch f.Name {
 		case "u":
 			conq.TotalUsers = users
-		case "r":
-			conq.TotalRequests = requests
 		case "t":
 			var duration time.Duration
 			duration, err = time.ParseDuration(timeout)
 			if err == nil {
 				conq.Duration = &duration
 			}
+		case "s":
+			conq.Sequential = sequential
 		}
 	})
 

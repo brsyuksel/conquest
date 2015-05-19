@@ -110,22 +110,6 @@ func (c JSConquest) Duration(call otto.FunctionCall) otto.Value {
 	return toOttoValueOrPanic(c.vm, c)
 }
 
-// conquest.prototype.Requests(reqs_count)
-// Sets the total requests count
-// Ex: conquest.Requests(1000);
-func (c JSConquest) Requests(call otto.FunctionCall) otto.Value {
-	reqs, err := call.Argument(0).ToInteger()
-	utils.UnlessNilThenPanic(err)
-
-	if reqs <= 0 {
-		panic(errors.New("Total requests can not be equal zero or lesser."))
-	}
-
-	c.conquest.TotalRequests = uint64(reqs)
-
-	return toOttoValueOrPanic(c.vm, c)
-}
-
 // sets initial cookies and headers for conquest
 func conquestInitials(conquest *Conquest, method string, call *otto.FunctionCall) {
 	arg := call.Argument(0)

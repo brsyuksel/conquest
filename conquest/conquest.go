@@ -28,12 +28,12 @@ const (
 )
 
 type Conquest struct {
-	Proto, Host, PemFilePath  string
-	TlsInsecure, Sequential   bool
-	TotalUsers, TotalRequests uint64
-	Initials                  map[string]map[string]interface{}
-	Duration                  *time.Duration
-	Track                     *TransactionContext
+	Proto, Host, PemFilePath string
+	TlsInsecure, Sequential  bool
+	TotalUsers               uint64
+	Initials                 map[string]map[string]interface{}
+	Duration                 *time.Duration
+	Track                    *TransactionContext
 }
 
 func NewConquest() *Conquest {
@@ -41,7 +41,6 @@ func NewConquest() *Conquest {
 		Proto:         "HTTP/1.1",
 		Initials:      map[string]map[string]interface{}{},
 		TotalUsers:    10,
-		TotalRequests: 100,
 	}
 
 	c.Initials["Headers"] = map[string]interface{}{
