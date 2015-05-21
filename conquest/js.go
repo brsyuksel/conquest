@@ -64,6 +64,15 @@ func (c JSConquest) Insecure(call otto.FunctionCall) otto.Value {
 	return toOttoValueOrPanic(c.vm, c)
 }
 
+// conquest.prototype.Sequential()
+// Sets conquest sequential mode for case/then stack.
+// Ex: conquest.Sequential();
+func (c JSConquest) Sequential(call otto.FunctionCall) otto.Value {
+
+	c.conquest.Sequential = true
+	return toOttoValueOrPanic(c.vm, c)
+}
+
 // conquest.prototype.ConquestHeaders()
 // Adds browser-like headers
 // Ex: conquest.ConquestHeaders();
