@@ -64,6 +64,25 @@ func (c JSConquest) Insecure(call otto.FunctionCall) otto.Value {
 	return toOttoValueOrPanic(c.vm, c)
 }
 
+// conquest.prototype.ConquestHeaders()
+// Adds browser-like headers
+// Ex: conquest.ConquestHeaders();
+func (c JSConquest) ConquestHeaders(call otto.FunctionCall) otto.Value {
+	if _, ok := c.conquest.Initials["Headers"]; !ok {
+		c.conquest.Initials["Headers"] = map[string]interface{}{}
+	}
+
+	c.conquest.Initials["Headers"] = utils.MapMerge(
+		c.conquest.Initials["Headers"], map[string]interface{}{
+			"User-Agent":      "conquest " + __VERSION__,
+			"Connection":      "keep-alive",
+			"Cache-Control":   "no-cache",
+			"Pragma":          "no-cache",
+			"Accept-Encoding": "gzip, deflate, sdch",
+		}, false)
+	return toOttoValueOrPanic(c.vm, c)
+}
+
 // conquest.prototype.Host(host)
 // Sets Host info ( and header )
 // Ex: conquest.Host("mydomain.local:3434");
@@ -75,6 +94,7 @@ func (c JSConquest) Host(call otto.FunctionCall) otto.Value {
 	utils.UnlessNilThenPanic(err)
 
 	c.conquest.Host = hostUrl.Host
+	c.conquest.scheme = hostUrl.Scheme
 	return toOttoValueOrPanic(c.vm, c)
 }
 

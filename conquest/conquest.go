@@ -28,7 +28,7 @@ const (
 )
 
 type Conquest struct {
-	Proto, Host, PemFilePath string
+	Proto, Host, PemFilePath, scheme string
 	TlsInsecure, Sequential  bool
 	TotalUsers               uint64
 	Initials                 map[string]map[string]interface{}
@@ -42,14 +42,6 @@ func NewConquest() *Conquest {
 		Initials:      map[string]map[string]interface{}{},
 		TotalUsers:    10,
 	}
-
-	c.Initials["Headers"] = map[string]interface{}{
-		"User-Agent":    "conquest " + __VERSION__,
-		"Connection":    "keep-alive",
-		"Cache-Control": "no-cache",
-		"Pragma":        "no-cache",
-	}
-
 	return c
 }
 
@@ -76,7 +68,7 @@ func mapToFetchNotation(src map[string]interface{}) (*FetchNotation, error) {
 	_, e2 := src["args"]
 
 	if !e1 || !e2 {
-		return nil, errors.New("map can not be converted as FetchNotation")
+		return nil, errors.New("map can not be converted to FetchNotation")
 	}
 
 	return &FetchNotation{

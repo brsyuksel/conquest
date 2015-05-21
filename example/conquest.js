@@ -3,6 +3,7 @@ conquest
   .Headers({
   	"X-Conquest": "v0.1.0"
   })
+  .ConquestHeaders()
   .Users(10, function(users){
     users
       .Every(function(user){
