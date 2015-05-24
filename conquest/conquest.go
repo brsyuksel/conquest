@@ -29,18 +29,18 @@ const (
 
 type Conquest struct {
 	Proto, Host, PemFilePath, scheme string
-	TlsInsecure, Sequential  bool
-	TotalUsers               uint64
-	Initials                 map[string]map[string]interface{}
-	Duration                 *time.Duration
-	Track                    *TransactionContext
+	TlsInsecure, Sequential          bool
+	TotalUsers                       uint64
+	Initials                         map[string]map[string]interface{}
+	Duration                         time.Duration
+	Track                            *TransactionContext
 }
 
 func NewConquest() *Conquest {
 	c := &Conquest{
-		Proto:         "HTTP/1.1",
-		Initials:      map[string]map[string]interface{}{},
-		TotalUsers:    10,
+		Proto:    "HTTP/1.1",
+		Initials: map[string]map[string]interface{}{},
+		Duration: time.Duration(time.Minute * 1),
 	}
 	return c
 }
@@ -48,6 +48,7 @@ func NewConquest() *Conquest {
 type Transaction struct {
 	conquest                              *Conquest
 	ReqOptions                            uint8
+	isMultiPart                           bool
 	Verb, Path                            string
 	Headers, Cookies, Body, ResConditions map[string]interface{}
 }

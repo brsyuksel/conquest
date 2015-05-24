@@ -16,8 +16,8 @@ var (
 
 func init() {
 	flag.Uint64Var(&users, "u", 10, "concurrent users.")
-	flag.StringVar(&timeout, "t", "TIMEm",
-		"time for requests. Use s, m, h modifiers for m")
+	flag.StringVar(&timeout, "t", "1m",
+		"time for requests stack. Use s, m, h modifiers")
 	flag.StringVar(&configfile, "c", "conquest.js", "conquest js file path")
 	flag.BoolVar(&sequential, "s", false, "do transactions in sequential mode")
 }
@@ -45,7 +45,7 @@ func main() {
 			var duration time.Duration
 			duration, err = time.ParseDuration(timeout)
 			if err == nil {
-				conq.Duration = &duration
+				conq.Duration = duration
 			}
 		case "s":
 			conq.Sequential = sequential
@@ -56,6 +56,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(conq)
-
+	
+	err = conquest.WalkTrack(conq)
+	fmt.Println(err)
 }

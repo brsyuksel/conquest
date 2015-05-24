@@ -83,11 +83,10 @@ func (c JSConquest) ConquestHeaders(call otto.FunctionCall) otto.Value {
 
 	c.conquest.Initials["Headers"] = utils.MapMerge(
 		c.conquest.Initials["Headers"], map[string]interface{}{
-			"User-Agent":      "conquest " + __VERSION__,
-			"Connection":      "keep-alive",
-			"Cache-Control":   "no-cache",
-			"Pragma":          "no-cache",
-			"Accept-Encoding": "gzip, deflate, sdch",
+			"User-Agent":    "conquest " + __VERSION__,
+			"Connection":    "keep-alive",
+			"Cache-Control": "no-cache",
+			"Pragma":        "no-cache",
 		}, false)
 	return toOttoValueOrPanic(c.vm, c)
 }
@@ -134,7 +133,7 @@ func (c JSConquest) Duration(call otto.FunctionCall) otto.Value {
 	duration, err := time.ParseDuration(durationStr)
 	utils.UnlessNilThenPanic(err)
 
-	c.conquest.Duration = &duration
+	c.conquest.Duration = duration
 
 	return toOttoValueOrPanic(c.vm, c)
 }
@@ -570,7 +569,10 @@ func (t JSTransaction) Body(call otto.FunctionCall) otto.Value {
 			if err != nil {
 				panic(err)
 			}
-			t.transaction.Body[k] = notation
+			if notation.Type == FETCH_DISK {
+				t.transaction.isMultiPart = true
+			}
+			t.transaction.Body[k] = &notation
 
 			continue
 		}
