@@ -15,7 +15,7 @@ conquest
           .Response
             .StatusCode(200)
             .Header("Server", "TornadoServer/4.1")
-            .Header("Content-Length", "16")
+            .Header("Content-Length", "12")
         ;
 
         /*

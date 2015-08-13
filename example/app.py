@@ -3,7 +3,9 @@ __author__ = 'baris'
 from tornado.web import Application, RequestHandler
 from tornado.ioloop import IOLoop
 
+
 class BaseHandler(RequestHandler):
+
     def initialize(self):
         self.set_header("Content-Type", "application/json")
         print(self.xsrf_token)
@@ -11,14 +13,19 @@ class BaseHandler(RequestHandler):
     def get_current_user(self):
         return self.get_secure_cookie("user")
 
+
 class RootHandler(BaseHandler):
+
     def get(self, *args, **kwargs):
+        u = self.current_user or bytes("", "utf-8")
         self.write({
-            "user": self.current_user.decode("utf-8"),
+            "user": u.decode("utf-8"),
         })
         self.finish()
 
+
 class AuthenticationHandler(BaseHandler):
+
     def post(self, *args, **kwargs):
         u = self.get_argument("user", None)
         p = self.get_argument("pass", None)
@@ -56,7 +63,9 @@ class AuthenticationHandler(BaseHandler):
         self.clear_all_cookies()
         self.set_status(200)
 
+
 class ForbiddenHandler(BaseHandler):
+
     def get(self, *args, **kwargs):
         if not self.current_user:
             self.write({
@@ -71,7 +80,9 @@ class ForbiddenHandler(BaseHandler):
         })
         self.set_status(200)
 
+
 class QueryPostHandler(BaseHandler):
+
     def get(self, *args, **kwargs):
         q = self.get_query_argument("q", None)
         self.write({"q": q})
@@ -82,6 +93,7 @@ class QueryPostHandler(BaseHandler):
 
 
 class FileUploadHandler(BaseHandler):
+
     def post(self, *args, **kwargs):
         f = self.request.files.get("file", None)
         if f is None:
@@ -102,8 +114,9 @@ class FileUploadHandler(BaseHandler):
 
 
 class HeadersHandler(BaseHandler):
+
     def get(self, *args, **kwargs):
-        self.write({"asdasdasd" : 1})
+        self.write({"asdasdasd": 1})
         self.set_etag_header()
         if self.check_etag_header():
             self._write_buffer = []
@@ -111,7 +124,9 @@ class HeadersHandler(BaseHandler):
             return
         self.finish()
 
+
 class MyApp(Application):
+
     def __init__(self):
         super(MyApp, self).__init__(handlers=[
             (r"/", RootHandler),

@@ -21,3 +21,7 @@ func MapMerge(dst map[string]interface{},
 
 	return dst
 }
+
+func NS2MS(ns int64) float64 {
+	return float64(ns)/float64(1000000)
+}

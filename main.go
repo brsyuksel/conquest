@@ -26,6 +26,8 @@ func main() {
 	var err error
 	flag.Parse()
 
+	fmt.Println("conquest v0.1.0\n")
+
 	if _, err := os.Stat(configfile); os.IsNotExist(err) {
 		fmt.Println(configfile, "file not found")
 		os.Exit(1)
@@ -34,7 +36,7 @@ func main() {
 	conq, err := conquest.RunScript(configfile)
 	if err != nil {
 		fmt.Println(err)
-		return
+		os.Exit(1)
 	}
 
 	flag.Visit(func(f *flag.Flag) {
@@ -54,9 +56,16 @@ func main() {
 
 	if err != nil {
 		fmt.Println(err)
-		return
+		os.Exit(1)
 	}
-	
-	err = conquest.WalkTrack(conq)
-	fmt.Println(err)
+
+	fmt.Println("performing transactions...\n")
+	reporter := conquest.NewReporter()
+
+	err = conquest.Perform(conq, reporter)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	<-reporter.C.Done
 }
