@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	"os"
 )
 
 const (
@@ -48,7 +49,7 @@ type report struct {
 	C           *reportChannels
 }
 
-func write(r *report) {
+func write(r *report, f *os.File) {
 STAT:
 	for {
 		select {
@@ -85,47 +86,47 @@ STAT:
 		}
 	}
 
-	fmt.Println("Summary:")
-	fmt.Printf("Hits: %d Success: %d Fails: %d\n\n", r.Hits, r.Success, r.Fails)
-	fmt.Println("Elapsed Time: ", utils.NS2MS(r.ElapsedTime.Nanoseconds()), " ms")
-	fmt.Println("Average Time: ",
+	fmt.Fprintln(f, "Summary:")
+	fmt.Fprintf(f, "Hits: %d Success: %d Fails: %d\n\n", r.Hits, r.Success, r.Fails)
+	fmt.Fprintln(f, "Elapsed Time: ", utils.NS2MS(r.ElapsedTime.Nanoseconds()), " ms")
+	fmt.Fprintln(f, "Average Time: ",
 		utils.NS2MS(time.Duration(int64(r.ElapsedTime)/int64(r.Hits)).Nanoseconds()), " ms")
-	fmt.Println("Slowest Time: ", utils.NS2MS(r.SlowestTime.Nanoseconds()), " ms")
-	fmt.Println("Fastest Time: ", utils.NS2MS(r.FastestTime.Nanoseconds()), " ms")
-	fmt.Println("")
+	fmt.Fprintln(f, "Slowest Time: ", utils.NS2MS(r.SlowestTime.Nanoseconds()), " ms")
+	fmt.Fprintln(f, "Fastest Time: ", utils.NS2MS(r.FastestTime.Nanoseconds()), " ms")
+	fmt.Fprintln(f, "")
 	if r.Slowest != nil {
-		fmt.Println("Slowest Transaction: ")
-		fmt.Println("\tPath: ", r.Slowest.Path)
-		fmt.Println("\tElapsed Time: ", utils.NS2MS(r.Slowest.ElapsedTime.Nanoseconds()), " ms")
+		fmt.Fprintln(f, "Slowest Transaction: ")
+		fmt.Fprintln(f, "\tPath: ", r.Slowest.Path)
+		fmt.Fprintln(f, "\tElapsed Time: ", utils.NS2MS(r.Slowest.ElapsedTime.Nanoseconds()), " ms")
 	}
 
 	if r.Fastest != nil {
-		fmt.Println("Fastest Transaction: ")
-		fmt.Println("\tPath: ", r.Fastest.Path)
-		fmt.Println("\tElapsed Time: ", utils.NS2MS(r.Fastest.ElapsedTime.Nanoseconds()), " ms")
-		fmt.Println("")
+		fmt.Fprintln(f, "Fastest Transaction: ")
+		fmt.Fprintln(f, "\tPath: ", r.Fastest.Path)
+		fmt.Fprintln(f, "\tElapsed Time: ", utils.NS2MS(r.Fastest.ElapsedTime.Nanoseconds()), " ms")
+		fmt.Fprintln(f, "")
 	}
 	
 	if len(r.Failed) > 0 {
-		fmt.Println("Failed Transactions:")
+		fmt.Fprintln(f, "Failed Transactions:")
 		for path, reasons := range r.Failed {
-			fmt.Println("\tPath: ", path)
-			fmt.Println("\tReasons:")
+			fmt.Fprintln(f, "\tPath: ", path)
+			fmt.Fprintln(f, "\tReasons:")
 			for _, r := range reasons {
 				switch r.Kind {
 				case REASON_RESPONSE:
-					fmt.Println("\t\tResponse Error: ", r.Error.Error())
+					fmt.Fprintln(f, "\t\tResponse Error: ", r.Error.Error())
 				case REASON_TRANSACTION:
-					fmt.Println("\t\tTransaction Error: ", r.Error.Error())
+					fmt.Fprintln(f, "\t\tTransaction Error: ", r.Error.Error())
 				}
 			}
-			fmt.Println("")
+			fmt.Fprintln(f, "")
 		}
 	}
 	r.C.Done <- true
 }
 
-func NewReporter() *report {
+func NewReporter(f *os.File) *report {
 	r := &report{
 		Failed: map[string][]*reason{},
 		C: &reportChannels{
@@ -135,7 +136,7 @@ func NewReporter() *report {
 		},
 	}
 
-	go write(r)
+	go write(r, f)
 	return r
 }
 

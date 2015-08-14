@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+var (
+	timerC <-chan time.Time
+)
+
 // transaction getter func builder
 // returns a func that it can return a transaction as randomly
 // sequential.
@@ -35,7 +39,7 @@ func transactionGetter(s bool, t []*Transaction) func() *Transaction {
 func chargeCrew(c *[]dutyRoutine, C *reportChannels) {
 	var done sync.WaitGroup
 	done.Add(len(*c))
-	
+
 	for _, r := range *c {
 		go r(C.Success, C.Fail, &done)
 	}
@@ -50,7 +54,6 @@ func createCrew(client *http.Client, s bool, c *Conquest,
 	t []*Transaction, C *reportChannels) error {
 
 	var routines []dutyRoutine
-	var timerC <-chan time.Time
 	getTransaction := transactionGetter(s, t)
 
 DUTY_LOOP:
@@ -79,7 +82,8 @@ DUTY_LOOP:
 
 		select {
 		case <-timerC:
-			routines = nil
+			chargeCrew(&routines, C)
+			break DUTY_LOOP
 		default:
 			if uint64(len(routines)) < c.TotalUsers {
 				continue DUTY_LOOP
