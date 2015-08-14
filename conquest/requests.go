@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 	"sync"
+	"time"
 )
 
 // routine of crew members
@@ -117,7 +117,7 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 				}
 			}
 		}()
-		//fmt.Println("routine for:", req.URL.Path)
+
 		start := time.Now()
 		res, err := c.Do(req)
 		elapsed := time.Since(start)
@@ -140,11 +140,11 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 		for k, v := range t.ResConditions {
 			switch k {
 			case "StatusCode":
-				if res.StatusCode != v.(int) {
+				if int64(res.StatusCode) != v.(int64) {
 					err := errors.New(
 						fmt.Sprintf(
 							"Expected status code is %d but it returned as %d.",
-							v.(int), res.StatusCode))
+							v.(int64), res.StatusCode))
 					panic(NewFail(REASON_RESPONSE, req.URL.Path, err, elapsed, req))
 				}
 			case "Header":

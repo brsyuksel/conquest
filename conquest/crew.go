@@ -35,13 +35,13 @@ func transactionGetter(s bool, t []*Transaction) func() *Transaction {
 func chargeCrew(c *[]dutyRoutine, C *reportChannels) {
 	var done sync.WaitGroup
 	done.Add(len(*c))
-
+	
 	for _, r := range *c {
 		go r(C.Success, C.Fail, &done)
 	}
 
 	done.Wait()
-	c = nil
+	*c = nil
 }
 
 // adds a duty assigned member to crew and performs it with using

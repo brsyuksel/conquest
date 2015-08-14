@@ -1,10 +1,10 @@
 package conquest
 
 import (
+	"conquest/utils"
 	"fmt"
 	"net/http"
 	"time"
-	"conquest/utils"
 )
 
 const (
@@ -71,7 +71,7 @@ STAT:
 				r.SlowestTime = s.ElapsedTime
 				r.Slowest = s
 			}
-			
+
 			if r.FastestTime == 0 {
 				r.FastestTime = s.ElapsedTime
 				r.Fastest = s
@@ -93,24 +93,33 @@ STAT:
 	fmt.Println("Slowest Time: ", utils.NS2MS(r.SlowestTime.Nanoseconds()), " ms")
 	fmt.Println("Fastest Time: ", utils.NS2MS(r.FastestTime.Nanoseconds()), " ms")
 	fmt.Println("")
-	fmt.Println("Slowest Transaction: ")
-	fmt.Println("\tPath: ", r.Slowest.Path)
-	fmt.Println("\tElapsed Time: ", utils.NS2MS(r.Slowest.ElapsedTime.Nanoseconds()), " ms")
-	fmt.Println("Fastest Transaction: ")
-	fmt.Println("\tPath: ", r.Fastest.Path)
-	fmt.Println("\tElapsed Time: ", utils.NS2MS(r.Fastest.ElapsedTime.Nanoseconds()), " ms")
-	fmt.Println("")
-	fmt.Println("Failed Transactions:")
-	for path, reasons := range r.Failed {
-		fmt.Println("\tPath: ", path)
-		fmt.Println("\tReasons:")
-		for _, r := range reasons {
-			switch r.Kind {
-			case REASON_RESPONSE:
-				fmt.Println("\t\tResponse Error: ", r.Error.Error())
-			case REASON_TRANSACTION:
-				fmt.Println("\t\tTransaction Error: ", r.Error.Error())
+	if r.Slowest != nil {
+		fmt.Println("Slowest Transaction: ")
+		fmt.Println("\tPath: ", r.Slowest.Path)
+		fmt.Println("\tElapsed Time: ", utils.NS2MS(r.Slowest.ElapsedTime.Nanoseconds()), " ms")
+	}
+
+	if r.Fastest != nil {
+		fmt.Println("Fastest Transaction: ")
+		fmt.Println("\tPath: ", r.Fastest.Path)
+		fmt.Println("\tElapsed Time: ", utils.NS2MS(r.Fastest.ElapsedTime.Nanoseconds()), " ms")
+		fmt.Println("")
+	}
+	
+	if len(r.Failed) > 0 {
+		fmt.Println("Failed Transactions:")
+		for path, reasons := range r.Failed {
+			fmt.Println("\tPath: ", path)
+			fmt.Println("\tReasons:")
+			for _, r := range reasons {
+				switch r.Kind {
+				case REASON_RESPONSE:
+					fmt.Println("\t\tResponse Error: ", r.Error.Error())
+				case REASON_TRANSACTION:
+					fmt.Println("\t\tTransaction Error: ", r.Error.Error())
+				}
 			}
+			fmt.Println("")
 		}
 	}
 	r.C.Done <- true
@@ -131,7 +140,7 @@ func NewReporter() *report {
 }
 
 func NewFail(k uint8, p string, err error, e time.Duration, r *http.Request) *Fail {
-	return &Fail{
+	f := &Fail{
 		Path:        p,
 		ElapsedTime: e,
 		Reason: &reason{
@@ -140,6 +149,7 @@ func NewFail(k uint8, p string, err error, e time.Duration, r *http.Request) *Fa
 			Request: r,
 		},
 	}
+	return f
 }
 
 func NewSuccess(p string, e time.Duration) *Success {
