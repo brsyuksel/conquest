@@ -147,6 +147,9 @@ conquest
         */
         user
           .Do("DELETE", "/auth")
+          .Body({
+            "_xsrf" : function(fetch){ return fetch.FromCookie("_xsrf"); }
+          })
           .Response
             .StatusCode(200)
         ;

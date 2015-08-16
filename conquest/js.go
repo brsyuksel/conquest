@@ -572,7 +572,7 @@ func (t JSTransaction) Body(call otto.FunctionCall) otto.Value {
 			if notation.Type == FETCH_DISK {
 				t.transaction.isMultiPart = true
 			}
-			t.transaction.Body[k] = &notation
+			t.transaction.Body[k] = notation
 
 			continue
 		}
@@ -633,9 +633,10 @@ func (f JSFetch) FromCookie(call otto.FunctionCall) otto.Value {
 func (f JSFetch) FromDisk(call otto.FunctionCall) otto.Value {
 	return fetchFrom(FETCH_DISK, &call, &f)
 }
-
+/*
 // fetch.FromHtml
 // ex: fetch.FromHtml("GET", "/path", "#selector_id")
 func (f JSFetch) FromHtml(call otto.FunctionCall) otto.Value {
 	return fetchFrom(FETCH_HTML, &call, &f)
 }
+*/

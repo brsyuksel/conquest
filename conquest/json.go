@@ -91,8 +91,10 @@ func (f *FetchNotation) MarshalJSON() ([]byte, error) {
 		kind = "FROM_DISK"
 	case FETCH_HEADER:
 		kind = "FROM_HEADER"
-	case FETCH_HTML:
-		kind = "FROM_HTML"
+		/*
+			case FETCH_HTML:
+				kind = "FROM_HTML"
+		*/
 	}
 
 	return json.Marshal(struct {

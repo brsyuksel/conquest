@@ -4,8 +4,8 @@ import (
 	"conquest/utils"
 	"fmt"
 	"net/http"
-	"time"
 	"os"
+	"time"
 )
 
 const (
@@ -106,7 +106,7 @@ STAT:
 		fmt.Fprintln(f, "\tElapsed Time: ", utils.NS2MS(r.Fastest.ElapsedTime.Nanoseconds()), " ms")
 		fmt.Fprintln(f, "")
 	}
-	
+
 	if len(r.Failed) > 0 {
 		fmt.Fprintln(f, "Failed Transactions:")
 		for path, reasons := range r.Failed {
@@ -119,6 +119,8 @@ STAT:
 				case REASON_TRANSACTION:
 					fmt.Fprintln(f, "\t\tTransaction Error: ", r.Error.Error())
 				}
+				/* FIXME: pretty print for failed request*/
+				fmt.Fprintln(f, "\t\tRequest: ", r.Request)
 			}
 			fmt.Fprintln(f, "")
 		}

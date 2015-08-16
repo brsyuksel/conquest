@@ -5,11 +5,26 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
+)
+
+type mUser struct {
+	M       *sync.Mutex
+	Cookies map[string]string
+	Headers map[string]map[string]string
+}
+
+var (
+	metaUser mUser = mUser{
+		M:       &sync.Mutex{},
+		Cookies: map[string]string{},
+		Headers: map[string]map[string]string{},
+	}
 )
 
 // routine of crew members
@@ -31,8 +46,24 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 		fallthrough
 	case "DELETE":
 		if t.isMultiPart {
-			// multipart ops
-			// ...
+			mwriter := multipart.NewWriter(body)
+
+			for k, d := range t.Body {
+				if data, ok := d.(string); ok {
+					mwriter.WriteField(k, data)
+					continue
+				}
+
+				/*
+					f := d.(*FetchNotation)
+					val := FetchFrom(f, t.Path, &metaUser)
+					if f.Type == FETCH_DISK {} else {}
+				*/
+			}
+
+			if err := mwriter.Close(); err != nil {
+				return nil, err
+			}
 			break
 		}
 		carrier = body
@@ -50,7 +81,21 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 		for k, d := range t.Body {
 			if data, ok := d.(string); ok {
 				v.Add(k, data)
+				continue
 			}
+
+			f := d.(*FetchNotation)
+			if strKind, ok := CorrectFetch(FETCH_COOKIE|FETCH_HEADER, f); !ok {
+				return nil, errors.New(strKind + " fetch can not be used with " +
+					t.Verb + " " + t.Path)
+			}
+
+			val, err := FetchFrom(f, t.Path, &metaUser)
+			if err != nil {
+				return nil, errors.New(t.Verb + " " + t.Path + " Error:" + err.Error())
+			}
+
+			v.Add(k, string(val))
 		}
 		// form values for falled through cases
 		if carrier != nil {
@@ -62,31 +107,53 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 	}
 
 	req, err := http.NewRequest(t.Verb, target, body)
+	if carrier != nil {
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	}
 	if err != nil {
 		return nil, err
 	}
 
-	// initial headers
+	// initial conquest headers
 	if t.ReqOptions&CLEAR_HEADERS == 0 {
 		for k, v := range conquest.Initials["Headers"] {
 			req.Header.Add(k, v.(string))
 		}
 	}
 
-	for k, v := range t.Headers {
-		if val, ok := v.(string); ok {
+	for k, d := range t.Headers {
+		if val, ok := d.(string); ok {
 			req.Header.Set(k, val)
 			continue
 		}
-		// FetchNotation Works
+
+		f := d.(*FetchNotation)
+		if strKind, ok := CorrectFetch(FETCH_COOKIE|FETCH_HEADER, f); !ok {
+			return nil, errors.New(strKind + " fetch can not be used with " +
+				t.Verb + " " + t.Path)
+		}
+
+		val, err := FetchFrom(f, t.Path, &metaUser)
+		if err != nil {
+			return nil, errors.New(t.Verb + " " + t.Path + " Error:" + err.Error())
+		}
+		req.Header.Set(k, string(val))
 	}
 
-	// initial cookies
+	// initial and stored cookies
 	if t.ReqOptions&CLEAR_COOKIES == 0 {
 		for k, v := range conquest.Initials["Cookies"] {
 			c := &http.Cookie{
 				Name:  k,
 				Value: v.(string),
+			}
+			req.AddCookie(c)
+		}
+
+		for k, v := range metaUser.Cookies {
+			c := &http.Cookie{
+				Name:  k,
+				Value: v,
 			}
 			req.AddCookie(c)
 		}
@@ -100,7 +167,18 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 			}
 			req.AddCookie(c)
 		}
-		// FetchNotation Works
+
+		f := v.(*FetchNotation)
+		if strKind, ok := CorrectFetch(FETCH_COOKIE|FETCH_HEADER, f); !ok {
+			return nil, errors.New(strKind + " fetch can not be used with " +
+				t.Verb + " " + t.Path)
+		}
+
+		val, err := FetchFrom(f, t.Path, &metaUser)
+		if err != nil {
+			return nil, errors.New(t.Verb + " " + t.Path + " Error:" + err.Error())
+		}
+		req.AddCookie(&http.Cookie{Name: k, Value: string(val)})
 	}
 
 	// routine func
@@ -126,10 +204,26 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 		}
 		defer res.Body.Close()
 
+		// cache headers
+		if _, ok := metaUser.Headers[req.URL.Path]; !ok {
+			metaUser.Headers[req.URL.Path] = map[string]string{}
+		}
+		/* FIXME: whitelist for headers*/
+		for k, v := range res.Header {
+			metaUser.Headers[req.URL.Path][k] = v[0]
+		}
+
 		resCookies := res.Cookies()
+		// store cookies
 		if t.ReqOptions&REJECT_COOKIES == 0 {
-			// store cookies
-			// ...
+			metaUser.M.Lock()
+			for _, c := range resCookies {
+				if c.Value == "" {
+					continue
+				}
+				metaUser.Cookies[c.Name] = c.Value
+			}
+			metaUser.M.Unlock()
 		}
 
 		if len(t.ResConditions) == 0 {

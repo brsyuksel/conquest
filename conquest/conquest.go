@@ -24,7 +24,7 @@ const (
 	FETCH_HEADER uint8 = 1 << iota
 	FETCH_COOKIE
 	FETCH_DISK
-	FETCH_HTML
+	//FETCH_HTML
 )
 
 type Conquest struct {
