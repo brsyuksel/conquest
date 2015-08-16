@@ -37,6 +37,7 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 	body := &bytes.Buffer{}
 
 	var carrier *bytes.Buffer
+	var boundary string
 	switch t.Verb {
 	case "POST":
 		fallthrough
@@ -47,6 +48,7 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 	case "DELETE":
 		if t.isMultiPart {
 			mwriter := multipart.NewWriter(body)
+			boundary = mwriter.Boundary()
 
 			for k, d := range t.Body {
 				if data, ok := d.(string); ok {
@@ -54,11 +56,16 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 					continue
 				}
 
-				/*
-					f := d.(*FetchNotation)
-					val := FetchFrom(f, t.Path, &metaUser)
-					if f.Type == FETCH_DISK {} else {}
-				*/
+				f := d.(*FetchNotation)
+				val, err := FetchFrom(f, t.Path, &metaUser)
+				if err != nil {
+					return nil, errors.New(t.Verb + " " + t.Path + " Error:" + err.Error())
+				}
+				if f.Type == FETCH_DISK {
+					continue
+				} else {
+					mwriter.WriteField(k, string(val))
+				}
 			}
 
 			if err := mwriter.Close(); err != nil {
@@ -107,6 +114,9 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 	}
 
 	req, err := http.NewRequest(t.Verb, target, body)
+	if t.isMultiPart {
+		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+	}
 	if carrier != nil {
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	}
@@ -209,12 +219,14 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 			metaUser.Headers[req.URL.Path] = map[string]string{}
 		}
 		/* FIXME: whitelist for headers*/
+		/* FIXME: lock*/
 		for k, v := range res.Header {
 			metaUser.Headers[req.URL.Path][k] = v[0]
 		}
 
 		resCookies := res.Cookies()
 		// store cookies
+		/* FIXME: store for one shoot*/
 		if t.ReqOptions&REJECT_COOKIES == 0 {
 			metaUser.M.Lock()
 			for _, c := range resCookies {
