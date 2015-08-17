@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -26,6 +27,39 @@ var (
 		Headers: map[string]map[string]string{},
 	}
 )
+
+// stores caching headers
+func storeHeaders(p string, h http.Header) {
+	metaUser.M.Lock()
+	defer metaUser.M.Unlock()
+
+	for name, values := range h {
+		switch name {
+		case "Etag":
+			fallthrough
+		case "Last-Modified":
+			if _, ok := metaUser.Headers[p]; !ok {
+				metaUser.Headers[p] = map[string]string{}
+			}
+
+			metaUser.Headers[p][name] = values[0]
+		}
+	}
+}
+
+func storeCookies(cs []*http.Cookie) {
+	metaUser.M.Lock()
+	defer metaUser.M.Unlock()
+
+	for _, c := range cs {
+		// delete cookie
+		if c.Value == "" {
+			delete(metaUser.Cookies, c.Name)
+			continue
+		}
+		metaUser.Cookies[c.Name] = c.Value
+	}
+}
 
 // routine of crew members
 type dutyRoutine func(chan<- *Success, chan<- *Fail, *sync.WaitGroup)
@@ -61,8 +95,19 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 				if err != nil {
 					return nil, errors.New(t.Verb + " " + t.Path + " Error:" + err.Error())
 				}
+
 				if f.Type == FETCH_DISK {
-					continue
+
+					part, err := mwriter.CreateFormFile(k,
+						filepath.Base(f.Args[0]))
+					if err != nil {
+						return nil, err
+					}
+
+					if _, err := part.Write(val); err != nil {
+						return nil, errors.New(t.Verb + " " + t.Path + " Error:" + err.Error())
+					}
+
 				} else {
 					mwriter.WriteField(k, string(val))
 				}
@@ -214,28 +259,13 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 		}
 		defer res.Body.Close()
 
-		// cache headers
-		if _, ok := metaUser.Headers[req.URL.Path]; !ok {
-			metaUser.Headers[req.URL.Path] = map[string]string{}
-		}
-		/* FIXME: whitelist for headers*/
-		/* FIXME: lock*/
-		for k, v := range res.Header {
-			metaUser.Headers[req.URL.Path][k] = v[0]
-		}
+		// store caching headers
+		storeHeaders(req.URL.Path, res.Header)
 
 		resCookies := res.Cookies()
 		// store cookies
-		/* FIXME: store for one shoot*/
 		if t.ReqOptions&REJECT_COOKIES == 0 {
-			metaUser.M.Lock()
-			for _, c := range resCookies {
-				if c.Value == "" {
-					continue
-				}
-				metaUser.Cookies[c.Name] = c.Value
-			}
-			metaUser.M.Unlock()
+			storeCookies(resCookies)
 		}
 
 		if len(t.ResConditions) == 0 {

@@ -1,8 +1,13 @@
 package conquest
 
 import (
-	//"net/http"
 	"errors"
+	"io/ioutil"
+	"os"
+)
+
+var (
+	fcache = map[string][]byte{}
 )
 
 func fromCookie(args []string, p string, u *mUser) ([]byte, error) {
@@ -28,8 +33,30 @@ func fromHeader(args []string, p string, u *mUser) ([]byte, error) {
 	return nil, errors.New("No " + key + " cached header for " + p)
 }
 
+/* FIXME: file caching */
 func fromDisk(args []string, p string, u *mUser) ([]byte, error) {
-	return nil, nil
+	fpath := args[0]
+
+	if data, ok := fcache[fpath]; ok {
+		return data, nil
+	}
+	
+	finfo, err := os.Stat(fpath)
+	if err != nil {
+		return nil, err
+	}
+
+	if finfo.IsDir() {
+		return nil, errors.New("You must provide a regular file")
+	}
+
+	content, err := ioutil.ReadFile(fpath)
+	if err != nil {
+		return nil, err
+	}
+	fcache[fpath] = content
+
+	return content, nil
 }
 
 func FetchFrom(f *FetchNotation, path string, u *mUser) (b []byte, e error) {

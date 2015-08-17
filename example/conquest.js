@@ -118,7 +118,7 @@ conquest
         user
           .Do("POST", "/file")
           .Body({
-            "file": function(fetch){ return fetch.FromDisk("test_files/", "text/markdown"); },
+            "file": function(fetch){ return fetch.FromDisk("test_files/test.md"); },
             "_xsrf": function(fetch){ return fetch.FromCookie("_xsrf"); }
           })
           .Response
@@ -131,7 +131,7 @@ conquest
         user
           .Do("POST", "/file")
           .Body({
-            "file": function(fetch){ return fetch.FromDisk("test_files/", "image/png"); },
+            "file": function(fetch){ return fetch.FromDisk("test_files/test.png"); },
             "_xsrf": function(fetch){ return fetch.FromCookie("_xsrf"); }
           })
           .Response
