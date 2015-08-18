@@ -1,10 +1,12 @@
 package conquest
 
 import (
+	"bytes"
 	"conquest/utils"
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -49,7 +51,7 @@ type report struct {
 	C           *reportChannels
 }
 
-func write(r *report, f *os.File) {
+func write(r *report, f *os.File, v bool) {
 STAT:
 	for {
 		select {
@@ -120,7 +122,16 @@ STAT:
 					fmt.Fprintln(f, "\t\tTransaction Error: ", r.Error.Error())
 				}
 				/* FIXME: pretty print for failed request*/
-				fmt.Fprintln(f, "\t\tRequest: ", r.Request)
+				if v {
+					fmt.Fprintln(f, "\t\tRequest:")
+					reqb := &bytes.Buffer{}
+					r.Request.Write(reqb)
+					reqStr := strings.Split(reqb.String(), "\n")
+					for _, line := range reqStr {
+						fmt.Fprintln(f, "\t\t\t"+line)
+					}
+				}
+
 			}
 			fmt.Fprintln(f, "")
 		}
@@ -128,7 +139,7 @@ STAT:
 	r.C.Done <- true
 }
 
-func NewReporter(f *os.File) *report {
+func NewReporter(f *os.File, v bool) *report {
 	r := &report{
 		Failed: map[string][]*reason{},
 		C: &reportChannels{
@@ -138,7 +149,7 @@ func NewReporter(f *os.File) *report {
 		},
 	}
 
-	go write(r, f)
+	go write(r, f, v)
 	return r
 }
 

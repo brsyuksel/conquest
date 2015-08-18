@@ -35,9 +35,7 @@ func storeHeaders(p string, h http.Header) {
 
 	for name, values := range h {
 		switch name {
-		case "Etag":
-			fallthrough
-		case "Last-Modified":
+		case "Etag", "Last-Modified":
 			if _, ok := metaUser.Headers[p]; !ok {
 				metaUser.Headers[p] = map[string]string{}
 			}
@@ -72,14 +70,9 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 
 	var carrier *bytes.Buffer
 	var boundary string
+
 	switch t.Verb {
-	case "POST":
-		fallthrough
-	case "PUT":
-		fallthrough
-	case "PATCH":
-		fallthrough
-	case "DELETE":
+	case "POST", "PUT", "PATCH", "DELETE":
 		if t.isMultiPart {
 			mwriter := multipart.NewWriter(body)
 			boundary = mwriter.Boundary()
@@ -120,11 +113,7 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 		}
 		carrier = body
 		fallthrough
-	case "GET":
-		fallthrough
-	case "HEAD":
-		fallthrough
-	case "OPTIONS":
+	case "GET", "HEAD", "OPTIONS":
 		if t.isMultiPart {
 			return nil, errors.New(t.Verb + " can not contain multipart data.")
 		}
@@ -158,27 +147,28 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 		target += v.Encode()
 	}
 
-	req, err := http.NewRequest(t.Verb, target, body)
-	if t.isMultiPart {
-		req.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
-	}
-	if carrier != nil {
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	}
+	manreq, err := http.NewRequest(t.Verb, target, body)
 	if err != nil {
 		return nil, err
+	}
+
+	if t.isMultiPart {
+		manreq.Header.Set("Content-Type", "multipart/form-data; boundary="+boundary)
+	}
+	if carrier != nil {
+		manreq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	}
 
 	// initial conquest headers
 	if t.ReqOptions&CLEAR_HEADERS == 0 {
 		for k, v := range conquest.Initials["Headers"] {
-			req.Header.Add(k, v.(string))
+			manreq.Header.Add(k, v.(string))
 		}
 	}
 
 	for k, d := range t.Headers {
 		if val, ok := d.(string); ok {
-			req.Header.Set(k, val)
+			manreq.Header.Set(k, val)
 			continue
 		}
 
@@ -192,7 +182,7 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 		if err != nil {
 			return nil, errors.New(t.Verb + " " + t.Path + " Error:" + err.Error())
 		}
-		req.Header.Set(k, string(val))
+		manreq.Header.Set(k, string(val))
 	}
 
 	// initial and stored cookies
@@ -202,7 +192,7 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 				Name:  k,
 				Value: v.(string),
 			}
-			req.AddCookie(c)
+			manreq.AddCookie(c)
 		}
 
 		for k, v := range metaUser.Cookies {
@@ -210,7 +200,7 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 				Name:  k,
 				Value: v,
 			}
-			req.AddCookie(c)
+			manreq.AddCookie(c)
 		}
 	}
 
@@ -220,7 +210,7 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 				Name:  k,
 				Value: val,
 			}
-			req.AddCookie(c)
+			manreq.AddCookie(c)
 		}
 
 		f := v.(*FetchNotation)
@@ -233,8 +223,10 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 		if err != nil {
 			return nil, errors.New(t.Verb + " " + t.Path + " Error:" + err.Error())
 		}
-		req.AddCookie(&http.Cookie{Name: k, Value: string(val)})
+		manreq.AddCookie(&http.Cookie{Name: k, Value: string(val)})
 	}
+	
+	bodyByte := body.Bytes()
 
 	// routine func
 	routine := func(s chan<- *Success, f chan<- *Fail, d *sync.WaitGroup) {
@@ -250,7 +242,10 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 				}
 			}
 		}()
-
+		
+		req, _ := http.NewRequest(t.Verb, target, bytes.NewBuffer(bodyByte))
+		req.Header = manreq.Header
+		
 		start := time.Now()
 		res, err := c.Do(req)
 		elapsed := time.Since(start)

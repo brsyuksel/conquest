@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	__VERSION__ string = "0.1.0"
+	VERSION string = "0.1.0b"
 )
 
 const (

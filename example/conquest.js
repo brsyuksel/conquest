@@ -12,6 +12,7 @@ conquest
       .Every(function(user){
         /*
         * first reach root path
+        * for getting _xsrf cookie
         */
         user
           .Do("GET", "/")
@@ -19,6 +20,14 @@ conquest
             .StatusCode(200)
             .Header("Server", "TornadoServer/4.1")
             .Header("Content-Length", "12")
+        ;
+
+        /*
+        * reach the /static page for obtaining
+        * caching header "Etag"
+        */
+        user
+          .Do("GET", "/static")
         ;
 
         /*

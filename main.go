@@ -11,7 +11,7 @@ import (
 var (
 	users                       uint64
 	timeout, configfile, output string
-	sequential                  bool
+	sequential, verbose         bool
 )
 
 func init() {
@@ -21,13 +21,15 @@ func init() {
 	flag.StringVar(&output, "o", "", "output file for summary")
 	flag.StringVar(&configfile, "c", "conquest.js", "conquest js file path")
 	flag.BoolVar(&sequential, "s", false, "do transactions in sequential mode")
+	flag.BoolVar(&verbose, "v", false, "print failed requests")
+
 }
 
 func main() {
 	var err error
 	flag.Parse()
 
-	fmt.Println("conquest v0.1.0\n")
+	fmt.Println("conquest", "v" + conquest.VERSION, "\n")
 
 	if _, err := os.Stat(configfile); os.IsNotExist(err) {
 		fmt.Println(configfile, "file not found")
@@ -61,7 +63,7 @@ func main() {
 	}
 
 	fmt.Println("performing transactions...\n")
-	
+
 	var fo *os.File
 	if output == "" {
 		fo = os.Stdout
@@ -72,7 +74,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
-	reporter := conquest.NewReporter(fo)
+	reporter := conquest.NewReporter(fo, verbose)
 
 	err = conquest.Perform(conq, reporter)
 	if err != nil {

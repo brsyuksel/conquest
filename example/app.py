@@ -1,25 +1,29 @@
 __author__ = 'baris'
 
+from os import devnull
+
 from tornado.web import Application, RequestHandler
 from tornado.ioloop import IOLoop
+from tornado.log import enable_pretty_logging
+
+enable_pretty_logging()
 
 
 class BaseHandler(RequestHandler):
 
     def initialize(self):
         self.set_header("Content-Type", "application/json")
-        print(self.xsrf_token)
+        print(self.xsrf_token, file=open(devnull, "w"))
 
     def get_current_user(self):
-        return self.get_secure_cookie("user")
+        return self.get_secure_cookie("user") or bytes("", "utf-8")
 
 
 class RootHandler(BaseHandler):
 
     def get(self, *args, **kwargs):
-        u = self.current_user or bytes("", "utf-8")
         self.write({
-            "user": u.decode("utf-8"),
+            "user": self.current_user.decode("utf-8"),
         })
         self.finish()
 
@@ -73,12 +77,11 @@ class ForbiddenHandler(BaseHandler):
                 "message": "login first"
             })
             self.set_status(403)
-            self.finish()
-
-        self.write({
-            "user": self.current_user.decode("utf-8")
-        })
-        self.set_status(200)
+        else:
+            self.write({
+                "user": self.current_user.decode("utf-8")
+            })
+            self.set_status(200)
 
 
 class QueryPostHandler(BaseHandler):
@@ -104,14 +107,14 @@ class FileUploadHandler(BaseHandler):
             self.finish()
 
         f = f[0]
-        if f["content_type"] == "text/markdown":
+        if f["body"].startswith(b"#"):
+            self.set_status(200)
             self.write({
                 "name": f["filename"]
             })
         else:
             self.set_status(415)
-            self.write({"error": f["content_type"]})
-
+            self.write({"error": "unexpected file"})
 
 class HeadersHandler(BaseHandler):
 

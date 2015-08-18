@@ -83,7 +83,7 @@ func (c JSConquest) ConquestHeaders(call otto.FunctionCall) otto.Value {
 
 	c.conquest.Initials["Headers"] = utils.MapMerge(
 		c.conquest.Initials["Headers"], map[string]interface{}{
-			"User-Agent":    "conquest " + __VERSION__,
+			"User-Agent":    "conquest " + VERSION,
 			"Connection":    "keep-alive",
 			"Cache-Control": "no-cache",
 			"Pragma":        "no-cache",
