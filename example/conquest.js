@@ -6,9 +6,6 @@ conquest
   .ConquestHeaders()
   .Users(1, function(users){
     users
-      // EVERY EVERY EVERY EVERY EVERY
-      // EVERY EVERY EVERY EVERY EVERY
-      // EVERY EVERY EVERY EVERY EVERY
       .Every(function(user){
         /*
         * first reach root path
@@ -58,9 +55,6 @@ conquest
           })
         ;
       })
-      // THEN THEN THEN THEN THEN
-      // THEN THEN THEN THEN THEN
-      // THEN THEN THEN THEN THEN
       .Then(function(user){
         /*
         * reach forbidden profile zone
@@ -147,9 +141,6 @@ conquest
             .StatusCode(415)
         ;
       })
-      // FINALLY FINALLY FINALLY FINALLY FINALLY
-      // FINALLY FINALLY FINALLY FINALLY FINALLY
-      // FINALLY FINALLY FINALLY FINALLY FINALLY
       .Finally(function(user){
         /*
         * Everybody should go home
