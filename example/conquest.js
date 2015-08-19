@@ -67,6 +67,14 @@ conquest
         ;
 
         /*
+        * skipped transaction
+        */
+        user
+          .Do("GET", "/")
+          .Skip()
+        ;
+
+        /*
         * try reach forbidden profile zone without cookies
         */
         user

@@ -405,6 +405,14 @@ func (t JSTransaction) Do(call otto.FunctionCall) otto.Value {
 
 // Sets ReqOptions as clear initial cookies and headers
 // Ex: t.ClearInitials()
+func (t JSTransaction) Skip(call otto.FunctionCall) otto.Value {
+	t.unlessAllocatedThenPanic()
+	t.transaction.Skip = true
+	return toOttoValueOrPanic(t.jsconquest.vm, t)
+}
+
+// Sets ReqOptions as clear initial cookies and headers
+// Ex: t.ClearInitials()
 func (t JSTransaction) ClearInitials(call otto.FunctionCall) otto.Value {
 	t.unlessAllocatedThenPanic()
 	t.transaction.ReqOptions |= CLEAR_COOKIES | CLEAR_HEADERS

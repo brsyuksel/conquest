@@ -48,7 +48,7 @@ func NewConquest() *Conquest {
 type Transaction struct {
 	conquest                              *Conquest
 	ReqOptions                            uint8
-	isMultiPart                           bool
+	isMultiPart, Skip                     bool
 	Verb, Path                            string
 	Headers, Cookies, Body, ResConditions map[string]interface{}
 }

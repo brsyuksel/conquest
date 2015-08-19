@@ -58,6 +58,10 @@ func createCrew(client *http.Client, s bool, c *Conquest,
 
 DUTY_LOOP:
 	for d := getTransaction(); d != nil; d = getTransaction() {
+		if d.Skip {
+			continue
+		}
+
 		if routines == nil {
 			routines = []dutyRoutine{}
 		}
