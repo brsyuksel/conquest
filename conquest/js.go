@@ -6,7 +6,6 @@ import (
 	"errors"
 	"github.com/robertkrimen/otto"
 	"net/url"
-	"os"
 	"time"
 )
 
@@ -51,19 +50,6 @@ func (c JSConquest) Proto(call otto.FunctionCall) otto.Value {
 	return toOttoValueOrPanic(c.vm, c)
 }
 
-// conquest.prototype.Insecure(insecure)
-// Sets Conquest struct's TlsInsecure boolean value.
-// Use it for skip verify at secure https connections
-// Ex:
-// conquest.Insecure(true);
-func (c JSConquest) Insecure(call otto.FunctionCall) otto.Value {
-	insecure, err := call.Argument(0).ToBoolean()
-	utils.UnlessNilThenPanic(err)
-
-	c.conquest.TlsInsecure = insecure
-	return toOttoValueOrPanic(c.vm, c)
-}
-
 // conquest.prototype.Sequential()
 // Sets conquest sequential mode for case/then stack.
 // Ex: conquest.Sequential();
@@ -103,22 +89,6 @@ func (c JSConquest) Host(call otto.FunctionCall) otto.Value {
 
 	c.conquest.Host = hostUrl.Host
 	c.conquest.scheme = hostUrl.Scheme
-	return toOttoValueOrPanic(c.vm, c)
-}
-
-// conquest.prototype.PemFile
-// Sets pem file for ssl connections
-// Ex:
-// conquest.PemFile("/path/to/file.pem")
-func (c JSConquest) PemFile(call otto.FunctionCall) otto.Value {
-	pemfile, err := call.Argument(0).ToString()
-	utils.UnlessNilThenPanic(err)
-
-	_, err = os.Stat(pemfile)
-	utils.UnlessNilThenPanic(err)
-
-	c.conquest.PemFilePath = pemfile
-
 	return toOttoValueOrPanic(c.vm, c)
 }
 

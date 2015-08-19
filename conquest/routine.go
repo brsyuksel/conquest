@@ -225,7 +225,7 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 		}
 		manreq.AddCookie(&http.Cookie{Name: k, Value: string(val)})
 	}
-	
+
 	bodyByte := body.Bytes()
 
 	// routine func
@@ -242,10 +242,10 @@ func buildDutyRoutine(c *http.Client, conquest *Conquest,
 				}
 			}
 		}()
-		
+
 		req, _ := http.NewRequest(t.Verb, target, bytes.NewBuffer(bodyByte))
 		req.Header = manreq.Header
-		
+
 		start := time.Now()
 		res, err := c.Do(req)
 		elapsed := time.Since(start)

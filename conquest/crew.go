@@ -103,8 +103,7 @@ func Perform(conquest *Conquest, reporter *report) error {
 		return errors.New("Empty transaction stack.")
 	}
 
-	httpClient, err := buildHttpClient(conquest.scheme, conquest.PemFilePath,
-		conquest.TlsInsecure)
+	httpClient, err := buildHttpClient(conquest.scheme)
 
 	if err != nil {
 		return err

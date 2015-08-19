@@ -1,5 +1,5 @@
 conquest
-  .Host("http://10.0.2.2:2297")
+  .Host("https://10.0.2.2")
   .Headers({
   	"X-Conquest": "v0.1.0"
   })
@@ -54,6 +54,7 @@ conquest
             "_xsrf": function(fetch){ return fetch.FromCookie("_xsrf"); },
           })
         ;
+
       })
       .Then(function(user){
         /*
@@ -95,16 +96,7 @@ conquest
             "_xsrf": function(fetch){ return fetch.FromCookie("_xsrf"); }
           })
         ;
-
-        /*
-        * Fetch static file and its etag
-        */
-        user
-          .Do("GET", "/static")
-          .Response
-            .StatusCode(200)
-        ;
-        
+ 
         /*
         * Check If-None-Match with etag
         */

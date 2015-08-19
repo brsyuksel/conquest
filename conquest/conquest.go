@@ -28,12 +28,12 @@ const (
 )
 
 type Conquest struct {
-	Proto, Host, PemFilePath, scheme string
-	TlsInsecure, Sequential          bool
-	TotalUsers                       uint64
-	Initials                         map[string]map[string]interface{}
-	Duration                         time.Duration
-	Track                            *TransactionContext
+	Proto, Host, scheme string
+	Sequential          bool
+	TotalUsers          uint64
+	Initials            map[string]map[string]interface{}
+	Duration            time.Duration
+	Track               *TransactionContext
 }
 
 func NewConquest() *Conquest {
