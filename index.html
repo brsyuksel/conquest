@@ -1,0 +1,379 @@
+<html lang="en">
+  <head>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/solarized_dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/highlight.min.js"></script>
+    <style type="text/css">
+      @import url(http://fonts.googleapis.com/css?family=Lobster);
+
+      body {
+        font-family: 'Helvetica Neue', sans-serif;
+        /*font-size: 16px;*/
+        font-weight: 400;
+        color: #657b83;
+        background-color: #fdf6e3;
+      }
+
+      .title-sep {
+        width: 100%;
+        border-top: 10px solid #cb4b16;
+      }
+
+      .title {
+        text-align: center;
+      }
+
+      .title h1 {
+        font-family: 'Lobster';
+        color: #cb4b16;
+        margin-bottom: 0px;
+      }
+
+      .dl {
+        margin-bottom: 3rem;
+      }
+
+      .dl .columns {
+        text-align: center; 
+      }
+
+      .dl a {
+        text-decoration: none;
+        font-size: 5.0rem;
+        color: #002b36;
+      }
+
+      .dl a span {
+        font-size: 1.8rem;
+      }
+
+      .ss {
+        width: 100%;
+        background-color: #002b36;
+        margin: 3.0rem 0rem;
+        height: 25rem;
+      }
+
+      .desc {
+        font-size: 1.7rem;
+      }
+
+      h4, h5 {
+        color: #b58900;
+        border-bottom: 0.1rem dotted #93a1a1; 
+      }
+
+      pre {
+        margin-bottom: 1rem;
+      }
+
+    </style>
+
+    <meta charset="UTF-8">
+    <title>conquest</title>
+  </head>
+
+  <body>
+    <div class="title-sep"></div>
+    <div class="container">
+
+      <!-- TITLE -->
+      <div class="row">
+        <div class="twelve columns title">
+          <h1>conquest</h1>
+          <p>a modern http restful and load tester</p>
+        </div>
+      </div>
+
+      <!-- DL -->
+      <div class="row dl">
+        <div class="offset-by-five one column"><a href="https://github.com/brsyuksel/conquest" class="fa fa-github" title="see source on github"></a></div>
+        <div class="one column"><a href="https://github.com/brsyuksel/conquest/archive/master.zip" class="fa fa-file-archive-o" title="download master zip"></a></div>
+      </div>
+
+      <div class="row">
+        <div class="twelve columns">
+          <p class="desc">conquest <small><em>(CONcurrent reQUESTs)</em></small> is a modern and simple usage application. you can test your restful apis and measure your code under stress with writing simple javascript files.</p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="twelve columns">
+          <h4>installation</h4>
+          <pre><code>go get -u github.com/brsyuksel/conquest</code></pre>
+        </div>
+
+        <div class="twelve columns">
+          <h4>command line parameters</h4>
+          <p>conquest has just few parameters for cli.</p>
+
+          <pre><code class="bash">$ conquest -h
+Usage of conquest:
+  -c="conquest.js": conquest js file path
+  -o="": output file for summary
+  -s=false: do transactions in sequential mode
+  -t="30s": duration for performing transactions. Use s, m, h modifiers
+  -u=10: concurrent users.
+  -v=false: print failed requests
+          </code></pre>
+
+          <p>conquest searchs current directory for conquest.js file. you can specify another file path via using -c parameter. if you want to write report of conquest, use -o parameter with a file path for to specify output file. you can also want to see failed request header, use -v parameter for this. conquest performs transaction in randomized mode, if you want conquest runs as sequential use -s parameter, otherwise you can specify duration for transactions with using -t parameter.</p>
+        </div>
+
+        <div class="twelve columns">
+          <h4>javascript api</h4>
+          <p>first, create a file named conquest.js where you want. our main variable is: <strong>conquest</strong>. conquest object has just 8 method which explained below.</p>
+
+          <pre><code>conquest.Host(host);</code></pre>
+          <p>you can define your target host with using this method.</p>
+
+          <pre><code>conquest.Proto(proto);</code></pre>
+          <p>tells conquest the http protocol. the proto parameter can be "HTTP/1.1" or "HTTP/1.0"</p>
+
+          <pre><code>conquest.ConquestHeaders();</code></pre>
+          <p>conquest adds some headers for all requests when you call this method. this header data block may be very useful for your application that it can determine requests for testing. the headers data which will be added looks like below:<br>
+          User-Agent: conquest [VERSION]<br>
+          Connection: keep-alive<br>
+          Cache-Control: no-cache<br>
+          Pragma: no-cache</p>
+
+          <pre><code>conquest.Headers(object);</code></pre>
+          <p>you can define some headers for all request. the object parameters must contains only string keys and string values. ex: {"X-Test", "True"}</p>
+
+          <pre><code>conquest.Cookies(object);</code></pre>
+          <p>you can define basic cookies as key-value for all request. the object parameters must contains only string keys and string values. ex: {"cookie_name": "cookie_values"}</p>
+
+          <pre><code>conquest.Sequential();</code></pre>
+          <p>tells to perform transactions as sequential mode. the every and finally transactions <em>(we will discuss later)</em> will be performed always as sequential but cases/then transactions can be performed as sequential or random.</p>
+
+          <pre><code>conquest.Duration(duration);</code></pre>
+          <p>you can specify duration for performing randomized cases transaction. it must provided when you do not prefer sequential mode. use "h", "m", "s" modifiers for specifying duration. ex: "3m30s". default value is "30s"</p>
+
+          <pre><code>conquest.Dump();</code></pre>
+          <p>dump method does not allow the performing transactions and dumps transactions as json. it can be very useful when you have some doubt about conquest.js file.</p>
+
+          <pre><code>conquest.Users(user_num, function(users){});</code></pre>
+          <p>And the goal method is conquest.Users(). the <em>user_num</em> parameter specifies concurrent users count. the second parameter is a function that will be called by conquest with users parameters. we will define conquest's behaviors for transactions with using it.</p>
+
+          <p>let's write our javascript file with baseline before see users parameter's methods.</p>
+          <pre><code>conquest
+  .Duration("2m")
+  .Host("http://localhost:8080")
+  .ConquestHeaders()
+  .Headers({
+    "X-Test": "True"
+  })
+  .Cookies({
+    "debug": "true"
+  })
+  .Users(100, function(users){})
+;</code></pre>
+
+        <p>our basic example file looks like this. let's examine the users object's methods. the users object have only 4 methods such as below</p>
+
+        <h5>defining transactions</h5>
+
+        <pre><code>users
+  .Every(function(user){})
+  .Then(function(user){})
+  .Cases(function(user){})
+  .Finally(function(user){})
+;</code></pre>
+        
+        <p>the defined transactions which using Every method will be performed by every concurrent users before other transactions. And Finally transactions as like as Every will be performed by every users after all of them. the defined transactions which using Then (Cases) method will be performed randomized when you choosed randomized mode, otherwise performed by every users as sequential. the Cases method alias for Then.</p>
+
+        <p>the parameter of all three methods must be a function. this function will be called by conquest such that passed <strong>user</strong> object. let's see methods of it.</p>
+
+        <pre><code>users.Do(verb, path);</code></pre>
+        <p>our main method. using this method, you can tell that perform verb for the path. let's call this method in our example:</p>
+
+        <pre><code>conquest
+  .Duration("2m")
+  .Host("http://localhost:8080")
+  .ConquestHeaders()
+  .Headers({
+    "X-Test": "True"
+  })
+  .Cookies({
+    "debug": "true"
+  })
+  .Users(100, function(users){
+    users
+      .Every(function(user){
+
+        /*
+        * all users will be performed GET method for root path.
+        */
+        var t = user.Do("GET", "/");
+
+      })
+    ;
+  })
+;</code></pre>
+
+        <p>Do method return an object which it have some methods can manipulate request's headers, body, data and can query response's data etc. let's examine them.</p>
+
+        <pre><code>t.Skip();</code></pre>
+        <p>you can skip unnecessary transactions with using this method. conquest will not perform the transaction.</p>
+
+        <pre><code>t.ClearHeaders();</code></pre>
+        <p>this method clears the initial headers which defined via conquest.SetHeader and conquest.ConquestHeaders methods.</p>
+
+        <pre><code>t.ClearCookies();</code></pre>
+        <p>this method clears the initial cookies which defined via conquest.SetCookies method.</p>
+
+        <pre><code>t.ClearInitials();</code></pre>
+        <p>it clears both of initial cookies and headers.</p>
+
+        <pre><code>t.RejectCookies();</code></pre>
+        <p>using this method, you can reject cookies which sent by server, by this way, conquest will not store them.</p>
+
+        <pre><code>t.SetCookie(cookies);</code></pre>
+        <p>you can define some cookies will be able for this request. the cookies parameter must be an object such its keys must string but values can be strings or function (we will discuss later)</p>
+
+        <pre><code>t.SetHeader(headers);</code></pre>
+        <p>you can define some headers will be used for this request. the headers parameter must be an object such its keys must be string but values can be strings or function (we will discuss later)</p>
+
+        <pre><code>t.Body(body);</code></pre>
+        <p>you can define some cookies will be able for this transaction. the cookies parameter must be an object such its keys must string but values strings or function (we will discuss later)</p>
+
+        <p>it is time to meet <em>fetch</em> functions. when you assign a function for key in body/headers/cookies object for transaction, this function called and passed a parameter which it is a fetch object. with fetch object's methods, you can obtain some data from stored cookies or headers, and you can set form-data or upload files. see example:</p>
+
+        <pre><code>
+/*
+* upload new profile photo.
+* we must provide xsrf form data.
+*/
+user
+  .Do("POST", "/new_photo")
+  .Body({
+    "xsrf": function(fetch) { return fetch.FromCookie("xsrf"); },
+    "file": function(fetch) { return fetch.FromDisk("test_files/photo.png"); }
+  })
+;
+</code></pre>
+
+        <p>there is some restrictions about using fetch methods. you can use all methods for body but can not use FromDisk method for header or cookie values.</p>
+
+        <h5>testing response</h5>
+        <p>now we can perform some test about response. every transactions which created via Do method have Response object and the Response object have some methods for testing response.</p>
+
+        <pre><code>t.Response.StatusCode(status_code);</code></pre>
+        <p>it checks the equality between status code of response and the status_code parameter. the status_code parameter must be an integer.</p>
+
+        <pre><code>t.Response.Header(header_name, header_value);</code></pre>
+        <p>it checks the equality between value of header named header_name obtained from server and header_value.</p>
+
+        <pre><code>t.Response.Cookie(cookie_name, cookie_value);</code></pre>
+        <p>it is same as the Header method but it works for cookies.</p>
+
+        <pre><code>t.Response.Contains(substr);</code></pre>
+        <p>it searchs substr in response body.</p>
+
+        <p>see example for Response usage:</p>
+
+        <pre><code>
+user
+  .Do("POST", "/new_photo")
+  .Body({
+    "xsrf": function(fetch) { return fetch.FromCookie("xsrf"); },
+    "file": function(fetch) { return fetch.FromDisk("test_files/photo.png"); }
+  })
+  .Response
+    .StatusCode(200)
+    .Contains("ok!")
+;
+        </code></pre>
+
+        <h5>full example</h5>
+
+        <pre><code>
+conquest
+  .Duration("2m")
+  .Host("http://localhost:8080")
+  .ConquestHeaders()
+  .Headers({
+    "X-Test": "True"
+  })
+  .Cookies({
+    "debug": "true"
+  })
+  .Users(100, function(users){
+    users
+      .Every(function(user){
+
+        /*
+        * all users will be performed GET method for root path.
+        */
+        user
+          .Do("GET", "/")
+        ;
+
+        /*
+        * log in
+        */
+        user
+          .Do("POST", "/login")
+          .Body({
+            "xsrf": function(fetch){ return fetch.FromCookie("xsrf"); },
+            "user": "root",
+            "pass": "toor"
+          })
+          .Response
+            .StatusCode(200)
+        ;
+
+      })
+      .Then(function(user){
+        /*
+        * reach the profile page
+        */
+        user
+          .Do("GET", "/profile")
+          .Response
+            .StatusCode(200)
+        ;
+
+        /*
+        * upload new photo
+        */
+        user
+          .Do("POST", "/new_photo")
+          .Body({
+            "xsrf": function(fetch) { return fetch.FromCookie("xsrf"); },
+            "file": function(fetch) { return fetch.FromDisk("test_files/photo.png"); }
+          })
+          .Response
+            .StatusCode(200)
+            .Contains("ok!")
+        ;
+      })
+      .Finally(function(user){
+        /*
+        * log out
+        */
+        user
+          .Do("GET", "/logout")
+          .Body({
+            "sess": function(fetch) { return fetch.FromCookie("sess"); }
+          })
+          .Response
+            .StatusCode(200)
+        ;
+      })
+    ;
+  })
+;
+        </code></pre>
+
+        <p>or visit github repo for see <a href="https://github.com/brsyuksel/conquest/tree/master/example">basic tornado application.</a> </p>
+
+        </div>
+      </div>
+    </div>
+
+  <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
