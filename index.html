@@ -98,7 +98,7 @@
       <div class="row">
         <div class="twelve columns title">
           <h1>conquest</h1>
-          <p>a modern http restful and load tester</p>
+          <p>a modern restful api and load tester</p>
         </div>
       </div>
 
@@ -110,19 +110,23 @@
 
       <div class="row">
         <div class="twelve columns">
-          <p class="desc">conquest <small><em>(CONcurrent reQUESTs)</em></small> is a modern and simple usage application. you can test your restful apis and measure your code under stress with writing simple javascript files.</p>
+          <p class="desc">conquest <small><em>(CONcurrent reQUESTs)</em></small> is a modern and simple tool that allows you to easily test your restful apis and measure your code's performance under stress by writing a few javascript lines.</p>
         </div>
       </div>
 
       <div class="row">
         <div class="twelve columns">
-          <h4>installation</h4>
+          <h3>installation</h3>
           <pre><code>go get -u github.com/brsyuksel/conquest</code></pre>
+        </div>
+        
+        <div class="twelve columns">
+          <h3>Usage</h3>
         </div>
 
         <div class="twelve columns">
-          <h4>command line parameters</h4>
-          <p>conquest has just few parameters for cli.</p>
+          <h4>cli</h4>
+          <p>conquest has an easy-to-use cli tool witsh a few parameters.</p>
 
           <pre><code class="bash">$ conquest -h
 Usage of conquest:
@@ -134,43 +138,43 @@ Usage of conquest:
   -v=false: print failed requests
           </code></pre>
 
-          <p>conquest searchs current directory for conquest.js file. you can specify another file path via using -c parameter. if you want to write report of conquest, use -o parameter with a file path for to specify output file. you can also want to see failed request header, use -v parameter for this. conquest performs transaction in randomized mode, if you want conquest runs as sequential use -s parameter, otherwise you can specify duration for transactions with using -t parameter.</p>
+          <p>by default, conquest looks for conquest.js in currrent directory. also, you can specify another file path via -c parameter. if you want to write report of conquest to a file, you can use -o parameter with a file path to specify output file. you can also want to see failed request header, use -v parameter for this. conquest performs transactions in randomized mode; if you want conquest to run sequential, use -s parameter; otherwise you can specify duration for transactions with using -t parameter.</p>
         </div>
 
         <div class="twelve columns">
           <h4>javascript api</h4>
-          <p>first, create a file named conquest.js where you want. our main variable is: <strong>conquest</strong>. conquest object has just 8 method which explained below.</p>
+          <p>first, create a file named conquest.js where you want. our main variable is: <strong>conquest</strong>. conquest object has just 8 methods which are explained below.</p>
 
           <pre><code>conquest.Host(host);</code></pre>
-          <p>you can define your target host with using this method.</p>
+          <p>you can define your target host by using this method.</p>
 
           <pre><code>conquest.Proto(proto);</code></pre>
-          <p>tells conquest the http protocol. the proto parameter can be "HTTP/1.1" or "HTTP/1.0"</p>
+          <p>defines which http protocol to use. the proto parameter can be "HTTP/1.1" or "HTTP/1.0"</p>
 
           <pre><code>conquest.ConquestHeaders();</code></pre>
-          <p>conquest adds some headers for all requests when you call this method. this header data block may be very useful for your application that it can determine requests for testing. the headers data which will be added looks like below:<br>
+          <p>conquest adds some headers to all requests when you call this method. this header data block may be very useful for your application that it can determine requests for testing. the header data looks like below:<br>
           User-Agent: conquest [VERSION]<br>
           Connection: keep-alive<br>
           Cache-Control: no-cache<br>
           Pragma: no-cache</p>
 
           <pre><code>conquest.Headers(object);</code></pre>
-          <p>you can define some headers for all request. the object parameters must contains only string keys and string values. ex: {"X-Test", "True"}</p>
+          <p>you can define some headers for all requests. the object parameters can only contain string keys and string values. ex: {"X-Test", "True"}</p>
 
           <pre><code>conquest.Cookies(object);</code></pre>
-          <p>you can define basic cookies as key-value for all request. the object parameters must contains only string keys and string values. ex: {"cookie_name": "cookie_values"}</p>
+          <p>you can define basic cookies as key-value couples for all requests. the object parameters can only contain string keys and string values. ex: {"cookie_name": "cookie_values"}</p>
 
           <pre><code>conquest.Sequential();</code></pre>
-          <p>tells to perform transactions as sequential mode. the every and finally transactions <em>(we will discuss later)</em> will be performed always as sequential but cases/then transactions can be performed as sequential or random.</p>
+          <p>makes conquest to perform transactions in sequential mode. the every and finally transactions <em>(we will discuss later)</em> will be performed always as sequential but cases/then transactions can be performed as sequential or random.</p>
 
           <pre><code>conquest.Duration(duration);</code></pre>
-          <p>you can specify duration for performing randomized cases transaction. it must provided when you do not prefer sequential mode. use "h", "m", "s" modifiers for specifying duration. ex: "3m30s". default value is "30s"</p>
+          <p>you can specify duration for performing randomized cases transaction. it must be explicitly provided when you do not prefer to use sequential mode. use "h", "m", "s" modifiers to specify duration. ex: "3m30s". default value is "30s"</p>
 
           <pre><code>conquest.Dump();</code></pre>
-          <p>dump method does not allow the performing transactions and dumps transactions as json. it can be very useful when you have some doubt about conquest.js file.</p>
+          <p>dump method does not allow the performing transactions and dumps transactions as json. it can be very useful when you have doubts about conquest.js file.</p>
 
           <pre><code>conquest.Users(user_num, function(users){});</code></pre>
-          <p>And the goal method is conquest.Users(). the <em>user_num</em> parameter specifies concurrent users count. the second parameter is a function that will be called by conquest with users parameters. we will define conquest's behaviors for transactions with using it.</p>
+          <p>And the goal method is conquest.Users(). the <em>user_num</em> parameter specifies the number of concurrent users. the second parameter is a function that will be called by conquest with users parameters. we will define conquest's behavior for transactions by using it.</p>
 
           <p>let's write our javascript file with baseline before see users parameter's methods.</p>
           <pre><code>conquest
@@ -186,7 +190,7 @@ Usage of conquest:
   .Users(100, function(users){})
 ;</code></pre>
 
-        <p>our basic example file looks like this. let's examine the users object's methods. the users object have only 4 methods such as below</p>
+        <p>the most basic usage example looks like this. let's examine the users object's methods. the users object has only 4 methods:</p>
 
         <h5>defining transactions</h5>
 
@@ -197,9 +201,9 @@ Usage of conquest:
   .Finally(function(user){})
 ;</code></pre>
         
-        <p>the defined transactions which using Every method will be performed by every concurrent users before other transactions. And Finally transactions as like as Every will be performed by every users after all of them. the defined transactions which using Then (Cases) method will be performed randomized when you choosed randomized mode, otherwise performed by every users as sequential. the Cases method alias for Then.</p>
+        <p>the defined transactions which using Every method will be performed by every concurrent user before executing other transactions. And Finally transactions -as like as Every- will be performed by every user after all transactions. the defined transactions which are using Then or Cases methods will be performed randomly if you have choosen randomized mode. otherwise they will be performed in defined order. the Cases is an alias for Then.</p>
 
-        <p>the parameter of all three methods must be a function. this function will be called by conquest such that passed <strong>user</strong> object. let's see methods of it.</p>
+        <p>the parameters of all three methods must be functions. that functions will be called by conquest such that passed <strong>user</strong> object. let's see methods of it.</p>
 
         <pre><code>users.Do(verb, path);</code></pre>
         <p>our main method. using this method, you can tell that perform verb for the path. let's call this method in our example:</p>
