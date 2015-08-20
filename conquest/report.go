@@ -2,12 +2,13 @@ package conquest
 
 import (
 	"bytes"
-	"conquest/utils"
 	"fmt"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+	
+	"github.com/brsyuksel/conquest/utils"
 )
 
 const (

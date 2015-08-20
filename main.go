@@ -1,11 +1,12 @@
 package main
 
 import (
-	"conquest/conquest"
 	"flag"
 	"fmt"
 	"os"
 	"time"
+	
+	"github.com/brsyuksel/conquest/conquest"
 )
 
 var (
@@ -17,12 +18,11 @@ var (
 func init() {
 	flag.Uint64Var(&users, "u", 10, "concurrent users.")
 	flag.StringVar(&timeout, "t", "30s",
-		"time for requests stack. Use s, m, h modifiers")
+		"duration for performing transactions. Use s, m, h modifiers")
 	flag.StringVar(&output, "o", "", "output file for summary")
 	flag.StringVar(&configfile, "c", "conquest.js", "conquest js file path")
 	flag.BoolVar(&sequential, "s", false, "do transactions in sequential mode")
 	flag.BoolVar(&verbose, "v", false, "print failed requests")
-
 }
 
 func main() {

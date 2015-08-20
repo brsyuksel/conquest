@@ -1,8 +1,9 @@
 package conquest
 
 import (
-	"conquest/utils"
 	"encoding/json"
+	
+	"github.com/brsyuksel/conquest/utils"
 )
 
 func (c *TransactionContext) MarshalJSON() ([]byte, error) {

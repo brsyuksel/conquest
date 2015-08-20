@@ -1,19 +1,20 @@
 package conquest
 
 import (
-	"conquest/utils"
 	"encoding/json"
 	"errors"
 	"github.com/robertkrimen/otto"
 	"net/url"
 	"time"
+	
+	"github.com/brsyuksel/conquest/utils"
 )
 
 // Returns t as otto.Value or panics
 func toOttoValueOrPanic(vm *otto.Otto, t interface{}) otto.Value {
 	obj, err := vm.ToValue(t)
 	utils.UnlessNilThenPanic(err)
-
+	
 	return obj
 }
 
