@@ -116,12 +116,8 @@
 
       <div class="row">
         <div class="twelve columns">
-          <h3>installation</h3>
+          <h4>installation</h4>
           <pre><code>go get -u github.com/brsyuksel/conquest</code></pre>
-        </div>
-        
-        <div class="twelve columns">
-          <h3>Usage</h3>
         </div>
 
         <div class="twelve columns">
@@ -138,7 +134,7 @@ Usage of conquest:
   -v=false: print failed requests
           </code></pre>
 
-          <p>by default, conquest looks for conquest.js in currrent directory. also, you can specify another file path via -c parameter. if you want to write report of conquest to a file, you can use -o parameter with a file path to specify output file. you can also want to see failed request header, use -v parameter for this. conquest performs transactions in randomized mode; if you want conquest to run sequential, use -s parameter; otherwise you can specify duration for transactions with using -t parameter.</p>
+          <p>by default, conquest looks for <strong>conquest.js in currrent directory.</strong> also, you can specify another file path via <strong>-c</strong> parameter. if you want to write report of conquest to a file, you can use <strong>-o</strong> parameter with a file path. you can also want to see failed request header, use <strong>-v</strong> parameter for this. conquest performs transactions in randomized mode; if you want conquest to run sequential, use <strong>-s</strong> parameter; otherwise you can specify duration for transactions with using <strong>-t</strong> parameter.</p>
         </div>
 
         <div class="twelve columns">
@@ -153,22 +149,22 @@ Usage of conquest:
 
           <pre><code>conquest.ConquestHeaders();</code></pre>
           <p>conquest adds some headers to all requests when you call this method. this header data block may be very useful for your application that it can determine requests for testing. the header data looks like below:<br>
-          User-Agent: conquest [VERSION]<br>
+          <em>User-Agent: conquest [VERSION]<br>
           Connection: keep-alive<br>
           Cache-Control: no-cache<br>
-          Pragma: no-cache</p>
+          Pragma: no-cache</p></em>
 
           <pre><code>conquest.Headers(object);</code></pre>
-          <p>you can define some headers for all requests. the object parameters can only contain string keys and string values. ex: {"X-Test", "True"}</p>
+          <p>you can define some headers for all requests. the object parameters can only contain string keys and string values. ex: <em>{"X-Test", "True"}</em></p>
 
           <pre><code>conquest.Cookies(object);</code></pre>
-          <p>you can define basic cookies as key-value couples for all requests. the object parameters can only contain string keys and string values. ex: {"cookie_name": "cookie_values"}</p>
+          <p>you can define basic cookies as key-value couples for all requests. the object parameters can only contain string keys and string values. ex: <em>{"cookie_name": "cookie_values"}</em></p>
 
           <pre><code>conquest.Sequential();</code></pre>
-          <p>makes conquest to perform transactions in sequential mode. the every and finally transactions <em>(we will discuss later)</em> will be performed always as sequential but cases/then transactions can be performed as sequential or random.</p>
+          <p>makes conquest to perform transactions in <strong>sequential mode.</strong> the every and finally transactions <em>(we will discuss later)</em> will be performed always as sequential but cases/then transactions can be performed as sequential or random.</p>
 
           <pre><code>conquest.Duration(duration);</code></pre>
-          <p>you can specify duration for performing randomized cases transaction. it must be explicitly provided when you do not prefer to use sequential mode. use "h", "m", "s" modifiers to specify duration. ex: "3m30s". default value is "30s"</p>
+          <p>you can specify duration for performing randomized cases transaction. <strong>it must be explicitly provided when you do not prefer to use sequential mode.</strong> use "h", "m", "s" modifiers to specify duration. ex: "3m30s". default value is "30s"</p>
 
           <pre><code>conquest.Dump();</code></pre>
           <p>dump method does not allow the performing transactions and dumps transactions as json. it can be very useful when you have doubts about conquest.js file.</p>
@@ -232,7 +228,7 @@ Usage of conquest:
   })
 ;</code></pre>
 
-        <p>Do method return an object which it have some methods can manipulate request's headers, body, data and can query response's data etc. let's examine them.</p>
+        <p>Do method return an object which have some methods can manipulate request's headers, body, data and can query response's data etc. </p>
 
         <pre><code>t.Skip();</code></pre>
         <p>you can skip unnecessary transactions with using this method. conquest will not perform the transaction.</p>
